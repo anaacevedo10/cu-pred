@@ -62,11 +62,11 @@ def index():
                 print("No se guardó ningún archivo")
             else:
                 # Entrada
-                water_file = "uploads/agua.log"
+                water_charge = ['O-w', -1.03457]
                 ligands = {}
                 errors_descriptors = []
                 for fl in saved_paths:
-                    ligands, errors_descriptors = get_descriptors(fl,water_file,ligands,errors_descriptors)
+                    ligands, errors_descriptors = get_descriptors(fl,water_charge,ligands,errors_descriptors)
 
                 descriptores_ligandos = (
                     pd.DataFrame.from_dict(ligands, orient='index')

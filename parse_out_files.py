@@ -398,16 +398,13 @@ def parse_gaussian_params(file):
     # --- 4) Extraer solvente ---
     solvent = None
     if route_str:
-        # SCRF=(...,Solvent=Water,...) o SCRF=(SMD,Solvent=Acetonitrile)
         scrf_content = re.search(r"SCRF=\(([^)]*)\)", route_str, flags=re.IGNORECASE)
         if scrf_content:
             inside = scrf_content.group(1)
             msol = re.search(r"Solvent\s*=\s*([A-Za-z0-9_\-\+/]+)", inside, flags=re.IGNORECASE)
             if msol:
                 solvent = msol.group(1)
-        # también hay formas tipo "SCRF=PCM" sin solvente explícito -> mirar más abajo
     if solvent is None:
-        # Buscar "Solvent = Nombre" en TODO el archivo; quedarse con el último
         sol_pat = re.compile(r"Solvent\s*=\s*([A-Za-z0-9_\-\+/]+)", re.IGNORECASE)
         for line in lines:
             m3 = sol_pat.search(line)
@@ -513,11 +510,7 @@ def get_pincer_ligand_charges(file,ha):
     return charges
 ############################# DEVUELVE LA CARGA NATURAL DE LOS ÁTOMOS LIGANTES #############################
 #------------------- Si el ligando tiene menos de cuatro ligantes, adiciona la carga de la moécula de agua
-def get_ligand_natural_charge(file,water_file):
-    #------------------- MOLECULA DE AGUA -------------------
-    ha_water = extract_nbo_natural_charges(water_file)
-    water_charge = [[h[0]+'-'+'w',h[2]] for h in ha_water][0]
-    #-----------------------------------------------------------
+def get_ligand_natural_charge(file,water_charge):
     name = file.split("\\")[-1].replace(".log",'')
     if name == 'agua':
         charges = [water_charge]*4
@@ -544,7 +537,7 @@ def get_ligand_natural_charge(file,water_file):
     return charges
 
 
-def get_descriptors(file,water_file,ligands,errors_descriptors):
+def get_descriptors(file,water_charge,ligands,errors_descriptors):
     name = file.split("\\")[-1].replace(".log",'')
     try:
         params = parse_gaussian_params(file)
@@ -569,8 +562,7 @@ def get_descriptors(file,water_file,ligands,errors_descriptors):
         #
         Vc = get_cavity_volume(file)
         # Natural Population Analysis
-        water_file = water_file
-        charges = get_ligand_natural_charge(file,water_file)
+        charges = get_ligand_natural_charge(file,water_charge)
         # kier_hall_index
         mol = Chem.MolFromSmiles(smiles)
         chi_index = {}
