@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Cu-PRED</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<div class="app-shell">
+
+    <!-- Barra superior -->
+    <header class="top-bar">
+        <div class="top-bar-left">
+            <img src="{{ url_for('static', filename='img/qcc_logo.jpg') }}" class="logo-img" alt="Logo">
+            <div class="top-bar-title">
+                <h1 class="app-title">Universidad Nacional de Colombia</h1>
+                <p class="app-subtitle">Predicción de potenciales redox en complejos de cobre mediante aprendizaje automático para el diseño de ligandos con aplicación en el tratamiento del alzheimer</p>
+                <p class="app-subtitle"><strong><em>Ana Acevedo Pérez, Jorge Alí-Torres</em></strong></p>
+            </div>
+        </div>
+        <div class="top-bar-right">
+            <img src="{{ url_for('static', filename='img/un.png') }}" 
+                class="right-logo-img" 
+                alt="Right logo">
+    </div>
+    </header>
+    <!-- Contenedor principal -->
+    <main class="dashboard-grid">
+
+        <!-- Parte superior izquierda -->
+        <section class="panel panel-top-left">
+            <div class="panel-header">
+                <h2><strong><em>Cu-PRED</em></strong></h2>
+            </div>
+            <div class="panel-content description-content">
+                <div class="description-media">
+                    <img src="{{ url_for('static', filename='img/chemistry.png') }}"
+                         alt="Decoración"
+                         class="decor-image">
+                </div>
+                <div class="description-text">
+                    <p style="text-align: justify;">
+                        <strong><em class="purple-text">Cu-PRED</em></strong> es un modelo de aprendizaje automático capaz de predecir los potenciales de reducción estándar (SRP) 
+                        de complejos de cobre Cu<sup>2+</sup>-Ln de manera confiable y rápida que optimiza la evaluación de ligandos que tengan aplicaciones
+                        potenciales en el tratamiento de la enfermedad de Alzheimer.
+                    </p>
+                </div>
+            </div>
+            <div class="image-wrapper-left">
+                <img src="{{ url_for('static', filename='img/abstract.png') }}"
+                    class="panel-image-left"
+                    alt="Imagen izquierda">
+            </div>
+        </section>
+        <!-- Parte superior derecha -->
+        <section class="panel panel-top-right">
+            <div class="panel-header">
+                <h2>Estado del modelo</h2>
+            </div>
+            <div class="panel-content">
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <span class="metric-value">R² 0.9885<br></span>
+                        <span class="metric-label">Entrenamiento</span>
+                    </div>
+                    <div class="metric-card">
+                        <span class="metric-value">R² 0.9549<br></span>
+                        <span class="metric-label">Prueba</span>
+                    </div>
+                    <div class="metric-card">
+                        <span class="metric-value"> 0.12 V<br></span>
+                        <span class="metric-label">RMSE</span>
+                    </div>
+                </div>
+                <div class="panel-content image-wrapper">
+                    <img src="{{ url_for('static', filename='img/resultados_modelo_final.png') }}" 
+                        class="panel-image" 
+                        alt="Gráfica modelo">
+                </div>
+            </div>
+        </section>
+
+        <!-- Parte inferior izquierda: subir archivo -->
+        <section class="panel panel-bottom-left">
+            <div class="panel-header">
+                <h2>Entrada de datos</h2>
+            </div>
+            <div class="panel-content">
+                <p class="panel-description">
+                    Sube uno o varios archivos (extensión <strong><em>.log</em></strong>)
+                    para generar predicciones:<br>
+                </p>
+                <form method="POST" enctype="multipart/form-data" class="upload-form">
+                    <div class="form-group">
+                        <div class="file-input-wrapper">
+                            <input type="file" name="files" id="file" multiple required>
+                        </div>
+                    </div>
+                    <div class="gaussian-block">
+                        <p class="form-hint">
+                            El formato <strong>.log</strong> de <a class="gaussian-red-text" href="https://gaussian.com/" target="_blank"><em>Gaussian</em></a> proveniente del cálculo DFT single point
+                            (M062X/6-31++G(d,p))
+                        </p>
+
+                        <img src="{{ url_for('static', filename='img/gaussian_logo.png') }}"
+                            alt="Gaussian"
+                            class="gaussian-logo">
+                    </div>
+                    <button type="submit" class="btn-primary">
+                        Ejecutar predicción
+                    </button>
+                </form>
+                {% if download_available %}
+                    <div class="download-block">
+                        <p class="download-text">
+                            Los descriptores moleculares de los ligandos están listos:
+                        </p>
+                        <a href="{{ url_for('download_excel') }}" class="btn-primary btn-with-icon">
+                            <img src="{{ url_for('static', filename='img/excel.png') }}"
+                                class="btn-icon"
+                                alt="Excel icon">
+                            Descargar descriptores
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </section>
+
+        <!-- Parte inferior derecha: resultados -->
+        <section class="panel panel-bottom-right">
+            <div class="panel-header">
+                <h2>Resultados de la predicción</h2>
+            </div>
+            <div class="panel-content">
+                {% if prediction_results %}
+                    <p class="panel-description">
+                        Resultados generados a partir del último archivo cargado:
+                    </p>
+                    <div class="results-box">
+                        <ul class="results-list">
+                            {% for r in prediction_results %}
+                                <li class="result-item">
+                                    <img src="{{ url_for('static', filename='img/copper.png') }}"
+                                        alt="Resultado"
+                                        class="result-icon">
+                                    <span class="result-text">{{ r }}</span>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+
+                    {% if download_predictions_available %}
+                        <div class="download-block">
+                            <p class="download-text">
+                                Descargar las predicciones realizada:
+                            </p>
+                            <a href="{{ url_for('download_predictions_excel') }}" class="btn-primary btn-with-icon">
+                                <img src="{{ url_for('static', filename='img/excel.png') }}"
+                                    class="btn-icon"
+                                    alt="Excel icon">
+                                Descargar predicción
+                            </a>
+                        </div>
+                    {% endif %}
+
+                {% else %}
+                    <div class="empty-state">
+                        <p class="empty-title">Sin predicciones aún</p>
+                        <p class="empty-text">
+                            Sube un archivo y pulsa <strong>“Ejecutar predicción”</strong> para ver resultados aquí.
+                        </p>
+                    </div>
+                {% endif %}
+            </div>
+        </section>
+    </main>
+</div>
+<footer class="credits">
+    <p>
+        <strong>Créditos:</strong> Los íconos utilizados en esta interfaz pertenecen a <a href="https://www.flaticon.com/" target="_blank"><strong>Flaticon</strong></a><br>
+    </p>
+</footer>
+</body>
+</html>
