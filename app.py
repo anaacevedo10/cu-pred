@@ -86,7 +86,7 @@ def index():
                 X = scaler.transform(datos_filtrados)
                 y_pred = model.predict(X)
                 prediction_results = [
-                    f"SRP del complejo coordinado a {ligandos[i]}: {round(y_pred[i],2):.2f} V"
+                    f"SRP del complejo coordinado a {ligandos[i].split('/')[-1]}: {round(y_pred[i],2):.2f} V"
                     for i in range(len(y_pred))
                 ]
                 #
